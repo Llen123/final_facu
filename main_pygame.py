@@ -4,6 +4,8 @@ from juego import *
 from ordenamiento import *
 from datos_globales import *
 from utilities import mostrar_texto
+from boton import * 
+from botones_iniciales import *
 
 pygame.init()
 
