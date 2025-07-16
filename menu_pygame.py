@@ -19,82 +19,45 @@ fuente_pequena = pygame.font.Font(None, 30)
 fondo_menu = pygame.image.load("imagenes/fondo_menu.png")
 fondo_menu = pygame.transform.scale(fondo_menu, (ANCHO_PANTALLA, ALTO_PANTALLA))
 
+from boton import crear_boton, dibujar_botones, checkear_accion_botones
+
 def menu_principal():
     ejecutando = True
+
+    padding = 20
+    menu_x = padding
+    menu_y = padding
+    menu_ancho = 400
+    menu_alto = ALTO_PANTALLA - 2 * padding
+
+    botones = [
+        crear_boton((menu_ancho - 2 * padding, 60), (menu_x + padding, menu_y + 120), pantalla, "Jugar"),
+        crear_boton((menu_ancho - 2 * padding, 60), (menu_x + padding, menu_y + 285), pantalla, "Ver historial"),
+        crear_boton((menu_ancho - 2 * padding, 60), (menu_x + padding, menu_y + 450), pantalla, "Salir")
+    ]
+
     while ejecutando:
         pantalla.blit(fondo_menu, (0, 0))
-
-        padding = 20
-        menu_x = padding
-        menu_y = padding
-        menu_ancho = 400
-        menu_alto = ALTO_PANTALLA - 2 * padding
         pygame.draw.rect(pantalla, GRIS_OSCURO, (menu_x, menu_y, menu_ancho, menu_alto))
+        mostrar_texto('Menú Principal', menu_x + padding, menu_y + padding, BLANCO, pantalla, fuente)
 
-        titulo_x = menu_x + padding
-        titulo_y = menu_y + padding
-        mostrar_texto('Menú Principal', titulo_x, titulo_y, BLANCO, pantalla, fuente)
+        dibujar_botones(botones, fuente)
 
-        mx, my = pygame.mouse.get_pos()
-
-        boton_ancho = menu_ancho - 2 * padding
-        boton_alto = 60
-        boton_x = menu_x + padding
-        boton_y = titulo_y + 100
-        espacio_entre_botones = 65
-
-        boton_1 = pygame.Rect(boton_x, boton_y, boton_ancho, boton_alto)
-        boton_2 = pygame.Rect(boton_x, boton_y + boton_alto + espacio_entre_botones, boton_ancho, boton_alto)
-        boton_3 = pygame.Rect(boton_x, boton_y + 2 * (boton_alto + espacio_entre_botones), boton_ancho, boton_alto)
-        boton_4 = pygame.Rect(boton_x, boton_y + 3 * (boton_alto + espacio_entre_botones), boton_ancho, boton_alto)
-
-        pygame.draw.rect(pantalla, GRIS, boton_1)
-        texto_jugar = fuente_pequena.render("Jugar", True, NEGRO)
-        texto_jugar_rect = texto_jugar.get_rect(center=boton_1.center)
-        pantalla.blit(texto_jugar, texto_jugar_rect)
-
-        pygame.draw.rect(pantalla, GRIS, boton_2)
-        texto_tabla = fuente_pequena.render("Tabla de Posiciones", True, NEGRO)
-        texto_tabla_rect = texto_tabla.get_rect(center=boton_2.center)
-        pantalla.blit(texto_tabla, texto_tabla_rect)
-
-        pygame.draw.rect(pantalla, GRIS, boton_3)
-        texto_github = fuente_pequena.render("Ver en GitHub", True, NEGRO)
-        texto_github_rect = texto_github.get_rect(center=boton_3.center)
-        pantalla.blit(texto_github, texto_github_rect)
-
-        pygame.draw.rect(pantalla, GRIS, boton_4)
-        texto_salir = fuente_pequena.render("Salir", True, NEGRO)
-        texto_salir_rect = texto_salir.get_rect(center=boton_4.center)
-        pantalla.blit(texto_salir, texto_salir_rect)
-
-        click = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 ejecutando = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    click = True
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                accion = checkear_accion_botones(botones, pygame.mouse.get_pos())
+                if accion == "Jugar":
+                    from main_pygame import main
+                    main()
+                    ejecutando = False
+                elif accion == "Ver historial":
+                    mostrar_tabla_posiciones(criterio="puntuacion", orden="desc")
+                elif accion == "Salir":
+                    ejecutando = False
 
-        if boton_1.collidepoint((mx, my)):
-            if click:
-                main()
-                print("Iniciando juego...")
-        if boton_2.collidepoint((mx, my)):
-            if click:
-                criterio = "puntuacion"
-                orden = "desc"
-                mostrar_tabla_posiciones(criterio, orden)
-        if boton_3.collidepoint((mx, my)):
-            if click:
-                webbrowser.open("https://github.com/Llen123")
-        if boton_4.collidepoint((mx, my)):
-            if click:
-                ejecutando = False
-
-        pygame.display.update()
-
-    pygame.quit()
+        pygame.display.flip()
 
 if __name__ == "__main__":
     menu_principal()
